@@ -1,0 +1,58 @@
+# Maintainer: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com>
+pkgname=gtw
+pkgver=0.2.1
+pkgrel=0
+pkgdesc="Wikipedia in your terminal: cached reading, rich rendering, inline media, and offline lists"
+url="https://github.com/craftty-org/gtw"
+arch="x86_64 aarch64"
+license="GPL-3.0-only"
+makedepends="
+	alsa-lib-dev
+	cargo
+	cargo-auditable
+	clang
+	cmake
+	git
+	"
+subpackages="
+	$pkgname-doc
+	$pkgname-bash-completion
+	$pkgname-zsh-completion
+	$pkgname-fish-completion
+	"
+source="$pkgname-$pkgver.tar.gz::https://github.com/craftty-org/gtw/archive/refs/tags/v$pkgver.tar.gz"
+# tuikit is a git dependency, so cargo needs network access in prepare()
+options="net !check"
+
+prepare() {
+	default_prepare
+
+	cargo fetch --target="$CTARGET" --locked
+}
+
+build() {
+	cargo auditable build --release --frozen
+
+	# man page and completions are generated from the CLI definition
+	./target/release/gtw --man > gtw.1
+	./target/release/gtw --completions bash > gtw.bash
+	./target/release/gtw --completions zsh > _gtw
+	./target/release/gtw --completions fish > gtw.fish
+}
+
+check() {
+	cargo test --frozen --release
+}
+
+package() {
+	install -Dm755 target/release/gtw -t "$pkgdir"/usr/bin/
+
+	install -Dm644 gtw.1 -t "$pkgdir"/usr/share/man/man1/
+	install -Dm644 gtw.bash "$pkgdir"/usr/share/bash-completion/completions/gtw
+	install -Dm644 _gtw -t "$pkgdir"/usr/share/zsh/site-functions/
+	install -Dm644 gtw.fish -t "$pkgdir"/usr/share/fish/vendor_completions.d/
+}
+
+sha512sums="
+cfc52ffc6dbc7bda53b488e4d9c657696d27b6f9cfa7b22e1c9e6d9b795a284bf069dea5f3b3b366fc51768262cd78cf2f8d66677efa4cdab5ee5940f57699e1  gtw-0.2.1.tar.gz
+"
