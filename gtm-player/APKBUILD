@@ -1,6 +1,6 @@
 # Maintainer: Vaishnav Sabari Girish <vaishnav.sabari.girish@gmail.com>
 pkgname=gtm-player
-pkgver=0.2.97
+pkgver=0.2.98
 pkgrel=0
 pkgdesc="Reimagined terminal audio player with background daemon, YouTube/Spotify, radio and podcasts"
 url="https://gtmd.dev"
